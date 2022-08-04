@@ -1,8 +1,9 @@
 module TheMonoids where
 
+import Control.Applicative (Alternative)
 import Control.Lens (Identity (..), Wrapped, ala, au, _Wrapping)
 import Data.Aeson (ToJSON)
-import Data.Functor.Contravariant (Predicate (..))
+import Data.Functor.Contravariant (Comparison (Comparison), Equivalence (Equivalence), Predicate (..))
 import qualified Data.Monoid
 import qualified Data.Semigroup
 import Data.Semigroup.Foldable (Foldable1 (foldMap1))
@@ -49,18 +50,26 @@ nativeMonoids =
 predicateMonoids :: (Foldable t) => [MonoidInfo t (a -> Bool)]
 predicateMonoids = [MonoidInfo "Predicate" AlsoMonoidal (ala Predicate foldMap)]
 
+comparisonMonoids :: (Foldable t) => [MonoidInfo t (a -> a -> Ordering)]
+comparisonMonoids = [MonoidInfo "Comparison" AlsoMonoidal (ala Comparison foldMap)]
+
+equivalenceMonoids :: (Foldable t) => [MonoidInfo t (a -> a -> Bool)]
+equivalenceMonoids = [MonoidInfo "Equivalence" AlsoMonoidal (ala Equivalence foldMap)]
+
 endofunctionMonoids :: (Foldable t) => [MonoidInfo t (a -> a)]
 endofunctionMonoids = [MonoidInfo "Endo" AlsoMonoidal (ala Data.Monoid.Endo foldMap)]
 
 maybeMonoids :: Foldable t => [MonoidInfo t (Maybe a)]
 maybeMonoids =
   [ MonoidInfo "Data.Monoid.First" AlsoMonoidal (ala Data.Monoid.First foldMap),
-    MonoidInfo "Data.Monoid.Last" AlsoMonoidal (ala Data.Monoid.Last foldMap),
-    MonoidInfo "Alt" AlsoMonoidal (ala Data.Monoid.Alt foldMap)
+    MonoidInfo "Data.Monoid.Last" AlsoMonoidal (ala Data.Monoid.Last foldMap)
   ]
 
-maybeMonoidMonoids :: (Foldable t, Monoid a) => [MonoidInfo t (Maybe a)]
-maybeMonoidMonoids = [MonoidInfo "Ap" AlsoMonoidal (ala Data.Monoid.Ap foldMap)]
+alternativeMonoids :: (Foldable t, Alternative f) => [MonoidInfo t (f a)]
+alternativeMonoids = [MonoidInfo "Alt" AlsoMonoidal (ala Data.Monoid.Alt foldMap)]
+
+applicativeMonoidMonoids :: (Foldable t, Applicative f, Monoid a) => [MonoidInfo t (f a)]
+applicativeMonoidMonoids = [MonoidInfo "Ap" AlsoMonoidal (ala Data.Monoid.Ap foldMap)]
 
 genericSemigroups :: Foldable1 t => [MonoidInfo t a]
 genericSemigroups =
