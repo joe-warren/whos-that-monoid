@@ -1,5 +1,13 @@
 { name = "halogen-project"
-, dependencies = [ "console", "effect", "halogen", "psci-support" ]
+, dependencies = [ 
+    "affjax",
+  "argonaut-codecs",
+    "console", 
+    "effect", 
+    "halogen",
+     "psci-support",
+     "foreign-generic"
+     ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }

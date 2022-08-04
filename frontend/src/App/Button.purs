@@ -11,18 +11,21 @@ type State
 data Action
   = Increment
 
-component :: forall q i o m. H.Component q i o m
-component =
+component :: forall q i o m. String -> H.Component q i o m
+component text =
   H.mkComponent
     { initialState: \_ -> { count: 0 }
-    , render
+    , render: render text
     , eval: H.mkEval H.defaultEval { handleAction = handleAction }
     }
 
-render :: forall cs m. State -> H.ComponentHTML Action cs m
-render state =
+render :: forall cs m. String -> State -> H.ComponentHTML Action cs m
+render text state =
   HH.div_
-    [ HH.p_
+    [ HH.text text
+      
+      , 
+      HH.p_
         [ HH.text $ "You clicked " <> show state.count <> " times" ]
     , HH.button
         [ HE.onClick \_ -> Increment ]
