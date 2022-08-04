@@ -74,6 +74,9 @@ noUnwrapOpts = defaultOptions { unwrapSingleConstructors = true, unwrapSingleArg
 
 newtype Games = Games (Array Game)
 
+gamesArray :: Games -> Array Game
+gamesArray (Games gs) = gs
+
 
 derive instance genericGames :: Generic Games _
 

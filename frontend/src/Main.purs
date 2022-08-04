@@ -6,7 +6,7 @@ import Prelude
 import Affjax as AX
 import Affjax.RequestBody as AXRB
 import Affjax.ResponseFormat as AXRF
-import App.Button as Button
+import App.Quiz as Quiz
 import Control.Monad.Except (runExcept)
 import Control.Monad.Except.Trans (runExceptT)
 import Data.Argonaut.Core as JSON
@@ -20,6 +20,9 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Class (liftEffect)
+import Effect.Class as Aff
+import Effect.Class.Console (log)
 import Foreign.Generic (defaultOptions, genericDecode, genericDecodeJSON)
 import Halogen.Aff as HA
 import Halogen.HTML (text)
@@ -30,8 +33,9 @@ import Web.HTML.Event.EventTypes (offline)
 main :: Effect Unit
 main = HA.runHalogenAff do
   r <- request ""
-  let t = case r of
-            Left text -> text
-            Right _ -> "Success"
-  body <- HA.awaitBody
-  runUI (Button.component t) unit body
+  case r of
+    Left text -> liftEffect $ log text
+    Right res -> do
+              component <- liftEffect $ Quiz.component res
+              body <- HA.awaitBody
+              void $  runUI component unit body
