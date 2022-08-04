@@ -1,11 +1,44 @@
+body {
+    background: #ff0000;
+}
+
+
+.content {
+background: white;
+margin: auto;
+
+border-radius: 2em;
+}
+
+
+.progress {
+}
+
+.quizline {
+    font-family: 'Courier Prime', monospace;
+}
+
+button {
+    padding: 1em;
+    margin: 1em;
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: solid;
+    background-color: #ccccdd;
+    border-color: black;
+}
+
 button.undetermined {
     color: blue;
+    border-color: blue;
 }
 
 button.correct {
     color: green;
+    border-color: green;
 }
 
 button.incorrect {
     color: red;
+    border-color: red;
 }

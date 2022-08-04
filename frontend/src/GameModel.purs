@@ -83,7 +83,7 @@ derive instance genericGames :: Generic Games _
 
 request :: String -> Aff (Either String Games)
 request q = do
-    response <- AX.get AXRF.string "data/0.json"
+    response <- AX.get AXRF.string "static/data/0.json"
     pure $ case response of
             Left err -> Left $ AX.printError err
             Right res -> lmap show <<< runExcept $  genericDecodeJSON noUnwrapOpts $ res.body

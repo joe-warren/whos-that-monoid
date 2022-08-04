@@ -1,33 +1,15 @@
 module Main where
 
-import GameModel
 import Prelude
 
-import Affjax as AX
-import Affjax.RequestBody as AXRB
-import Affjax.ResponseFormat as AXRF
 import App.Quiz as Quiz
-import Control.Monad.Except (runExcept)
-import Control.Monad.Except.Trans (runExceptT)
-import Data.Argonaut.Core as JSON
-import Data.Argonaut.Decode as JSON
-import Data.Bifunctor (bimap, lmap)
-import Data.Either (hush, Either(..))
-import Data.List (List(..))
-import Data.Maybe (Maybe(..))
+import Data.Either (Either (..))
 import Effect (Effect)
-import Effect (Effect)
-import Effect.Aff (Aff)
-import Effect.Aff (Aff)
-import Effect.Aff.Class (class MonadAff)
 import Effect.Class (liftEffect)
-import Effect.Class as Aff
 import Effect.Class.Console (log)
-import Foreign.Generic (defaultOptions, genericDecode, genericDecodeJSON)
+import GameModel (request)
 import Halogen.Aff as HA
-import Halogen.HTML (text)
 import Halogen.VDom.Driver (runUI)
-import Web.HTML.Event.EventTypes (offline)
 
 
 main :: Effect Unit

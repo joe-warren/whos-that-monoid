@@ -4,14 +4,18 @@ import Prelude
 
 import Data.Array (any)
 import Data.Array as Array
+import Data.Foldable (class Foldable, sum, length)
+import Data.List (List)
+import Data.List as List
 import Data.Maybe (Maybe(..), fromJust, maybe)
-import Data.Traversable (traverse)
+import Data.Traversable (class Traversable, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Effect (Effect)
 import Effect.Random as Random
 import Foreign.NullOrUndefined (undefined)
 import GameModel (MonoidName, Output(..))
 import GameModel as GM
+import Halogen (ClassName)
 import Halogen as H
 import Halogen.HTML (output)
 import Halogen.HTML as HH
@@ -32,7 +36,6 @@ roundState r = if any (\a -> a.answerClicked && a.answerCorrect) r.answers
                       then Lose
                       else InPlay
 
-
 type Answer = { answerText :: GM.MonoidName, 
       answerCorrect :: Boolean,
       answerClicked :: Boolean
@@ -48,6 +51,11 @@ type State cs m
       currentRound :: Maybe (Round cs m), 
       upcomingRounds :: Array (Round cs m)
     }
+
+allRounds :: forall cs m. State cs m -> List (Round cs m)
+allRounds s =  List.fromFoldable s.previousRounds <> 
+     List.fromFoldable s.currentRound <> 
+     List.fromFoldable s.upcomingRounds
 
 shuffle :: ∀ a. Array a -> Effect (Array a)
 shuffle xs = map fst <<< Array.sortWith snd <$> traverse (\x -> Tuple x <$> Random.random) xs
@@ -65,13 +73,15 @@ outputHtml (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
   HH.text "]"
 ]
 
+classname = HP.class_ <<< HH.ClassName
+
 gameToRound :: forall cs m. GM.Game -> Effect (Round cs m)
 gameToRound (GM.Game g) = do
   let correctAnswer = {answerText: g.gameSolution, answerCorrect: true, answerClicked: false}
       incorrectAnswers =  (\name -> {answerText: name, answerCorrect: false, answerClicked: false}) <$> g.gameOtherAnswers
   shuffledAnswers <- shuffle (Array.cons correctAnswer incorrectAnswers)
   pure { 
-    quizLine: HH.span_ [
+    quizLine: HH.span [classname "quizline"] [
       HH.text "ala ", 
       HH.text " ???? ",
       HH.text " foldMap ",
@@ -128,13 +138,43 @@ renderButton r ans =
         [ HH.text name ]
 
 
+count :: forall t a. Traversable t => (a -> Boolean) -> t a -> Int
+count f xs = let f' v =  if f v then 1 else 0 
+              in sum $ f' <$> xs
+
+
+score :: forall cs m. State cs m -> Tuple Int Int
+score s = Tuple (count (((==) Win) <<< roundState) s.previousRounds) (length s.previousRounds)
+
+
+
+progressBar :: forall cs m. State cs m -> H.ComponentHTML Action cs m
+progressBar s = let entity InPlay = HH.img [HP.src "static/imgs/active.gif"]
+                    entity Win = HH.img [HP.src "static/imgs/success.gif"]
+                    entity Lose = HH.img [HP.src "static/imgs/lose.gif"]
+                    notPlayedEntity = HH.img [HP.src "static/imgs/inactive.gif"]
+              in HH.p [HP.class_ (HH.ClassName "progress")] $ 
+                  (entity <<< roundState <$> ( s.previousRounds <> Array.fromFoldable s.currentRound)) <>
+                  (const notPlayedEntity <$> s.upcomingRounds)
+
+
+
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
-render  state =
-  case state.currentRound of
-    Nothing -> HH.div_ [HH.text "Game Over"]
+render state =
+  HH.div [classname "content"] $ case state.currentRound of
+    Nothing -> [
+    progressBar state,
+    HH.text "Game Over",
+    let Tuple s nRounds = score state in HH.p_ [
+      HH.text (show s),
+      HH.text "/",
+      HH.text $ show nRounds
+    ]
+    ]
     Just r -> 
-      HH.div_
-        [ r.quizLine, 
+        [ 
+          progressBar state,
+          r.quizLine, 
           HH.p_ $ renderButton (roundState r) <$> r.answers,
           HH.p_ $ case roundState r of
                     InPlay -> []
@@ -156,7 +196,7 @@ doAdvance :: forall cs m.  State cs m -> State cs m
 doAdvance s = 
   let c = Array.uncons s.upcomingRounds
   in {
-    previousRounds: (maybe identity Array.cons s.currentRound) s.previousRounds,
+    previousRounds: (maybe identity (flip Array.snoc) s.currentRound) s.previousRounds,
     currentRound: _.head <$> c,
     upcomingRounds: maybe [] _.tail c
   }

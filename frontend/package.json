@@ -15,8 +15,8 @@
   "staticFiles": {
     "staticPath": [
       {
-        "staticPath": "data",
-        "staticOutDir": "data/"
+        "staticPath": "static",
+        "staticOutDir": "static/"
       }
     ]
   }
