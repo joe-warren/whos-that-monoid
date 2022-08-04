@@ -1,0 +1,11 @@
+button.undetermined {
+    color: blue;
+}
+
+button.correct {
+    color: green;
+}
+
+button.incorrect {
+    color: red;
+}

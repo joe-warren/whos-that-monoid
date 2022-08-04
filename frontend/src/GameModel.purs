@@ -28,6 +28,7 @@ import Foreign.Generic (class Decode, defaultOptions, genericDecode, genericDeco
 
 newtype MonoidName = MonoidName String
 
+derive instance eqMonoidName :: Eq MonoidName
 
 derive instance genericMonoidName :: Generic MonoidName _
 instance decodeWithOptionsMonoidName :: Decode MonoidName where
