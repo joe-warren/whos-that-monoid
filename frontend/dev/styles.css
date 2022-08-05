@@ -3,19 +3,47 @@ body {
 }
 
 
-.content {
-background: white;
-margin: auto;
+.header img {
+    height: 50px;
+}
 
-border-radius: 2em;
+.content {
 }
 
 
 .progress {
+    background: white;
+    border-radius: 2em;
+    width: max-content;
+    margin: 1em auto;
+}
+
+.bigGraphic {
+    display: block;
+    margin: 1em auto;
+}
+
+.quizSection {
+    background-color: white;
+    border-radius: 1em;
+    padding: 1em;
+    text-align: center;
 }
 
 .quizline {
     font-family: 'Courier Prime', monospace;
+}
+
+.buttons {
+   width: max-content;
+   margin: 1em auto;
+}
+
+.nextQuestion {
+   height: 5em;
+   width: max-content;
+   margin: 1em auto;
+    
 }
 
 button {

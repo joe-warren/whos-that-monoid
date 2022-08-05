@@ -156,7 +156,7 @@ progressBar s = let entity InPlay = HH.img [HP.src "static/imgs/active.gif"]
                     entity Win = HH.img [HP.src "static/imgs/success.gif"]
                     entity Lose = HH.img [HP.src "static/imgs/lose.gif"]
                     notPlayedEntity = HH.img [HP.src "static/imgs/inactive.gif"]
-              in HH.p [HP.class_ (HH.ClassName "progress")] $ 
+              in HH.div [HP.class_ (HH.ClassName "progress")] $ 
                   (entity <<< roundState <$> ( s.previousRounds <> Array.fromFoldable s.currentRound)) <>
                   (const notPlayedEntity <$> s.upcomingRounds)
 
@@ -170,7 +170,9 @@ imgUrl r =
 
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
 render state =
-  HH.div [classname "content"] $ case state.currentRound of
+  HH.div [classname "content"] ([
+   HH.div [classname "header"] [HH.img [HP.src "static/imgs/small-title.svg"] ]
+  ] <> case state.currentRound of
     Nothing -> [
     progressBar state,
     HH.text "Game Over",
@@ -183,18 +185,19 @@ render state =
     Just r -> 
         [ 
           progressBar state,
-          HH.p_ [
-            HH.img [classname "bigGraphic", HP.src $ imgUrl r]
-          ],
-          HH.p_ [r.quizLine], 
-          HH.p_ $ renderButton (roundState r) <$> r.answers,
-          HH.p_ $ case roundState r of
-                    InPlay -> []
-                    _ ->  [HH.button
-                            [HE.onClick \_ -> AdvanceRound]
-                            [ HH.text "Next Question" ]
-                      ]
+          HH.img [classname "bigGraphic", HP.src $ imgUrl r],
+          HH.div [classname "quizSection"] [
+            HH.p_ [r.quizLine], 
+            HH.div [classname "buttons"] $ renderButton (roundState r) <$> r.answers,
+            HH.div [classname "nextQuestion"] $ case roundState r of
+                      InPlay -> [ ]
+                      _ ->  [HH.button
+                              [HE.onClick \_ -> AdvanceRound]
+                              [ HH.text "Next Question" ]
+                        ]
         ]
+        ]
+        )
 
   
 
