@@ -1,5 +1,5 @@
 body {
-    background: #ff0000;
+    background: #da100e;
 }
 
 
@@ -24,21 +24,42 @@ button {
     border-radius: 10px;
     border-width: 2px;
     border-style: solid;
-    background-color: #ccccdd;
+    background-color: #f0f0f8;
     border-color: black;
+    width: 20em;
 }
 
 button.undetermined {
-    color: blue;
-    border-color: blue;
+    color: #0f3768;
+    border-color: #0f3768;
+}
+
+@keyframes wiggle {
+	0% {transform: translate(0, 0px);}
+	25% {transform: translate(0, -5px);}
+	50% {transform: translate(0, 5px);}
+	75% {transform: translate(0, -5px);}
+	100% {transform: translate(0, 0px);}
+}
+
+@keyframes wobble {
+	0% {transform: translate(0px, 0);}
+	25% {transform: translate(-5px, 0);}
+	50% {transform: translate(5px, 0);}
+	75% {transform: translate(-5px, 0);}
+	100% {transform: translate(0px, 0);}
 }
 
 button.correct {
-    color: green;
-    border-color: green;
+    color: #0b9e0c;
+    border-color: #0b9e0c;
+    font-weight: bold;
+	animation: wiggle 0.5s ease;
 }
 
 button.incorrect {
-    color: red;
-    border-color: red;
+    color: #da100e;
+    border-color: #da100e;
+    font-weight: bold;
+	animation: wobble 0.5s ease;
 }
