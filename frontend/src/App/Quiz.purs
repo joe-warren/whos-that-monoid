@@ -43,7 +43,8 @@ type Answer = { answerText :: GM.MonoidName,
 
 type Round cs m = {
     quizLine :: HH.ComponentHTML Action cs m, 
-    answers :: Array Answer
+    answers :: Array Answer,
+    roundImage :: Int
   }
 
 type State cs m 
@@ -75,8 +76,8 @@ outputHtml (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
 
 classname = HP.class_ <<< HH.ClassName
 
-gameToRound :: forall cs m. GM.Game -> Effect (Round cs m)
-gameToRound (GM.Game g) = do
+gameToRound :: forall cs m. Tuple GM.Game Int -> Effect (Round cs m)
+gameToRound (Tuple (GM.Game g) i) = do
   let correctAnswer = {answerText: g.gameSolution, answerCorrect: true, answerClicked: false}
       incorrectAnswers =  (\name -> {answerText: name, answerCorrect: false, answerClicked: false}) <$> g.gameOtherAnswers
   shuffledAnswers <- shuffle (Array.cons correctAnswer incorrectAnswers)
@@ -91,12 +92,14 @@ gameToRound (GM.Game g) = do
       HH.text " ",
       (outputHtml g.gameOutput)
     ], 
-    answers: shuffledAnswers
+    answers: shuffledAnswers,
+    roundImage: i
   } 
 
 buildInitialState :: forall cs m. GM.Games -> Effect (State cs m)
 buildInitialState (GM.Games gs) = do 
-  rounds <- traverse gameToRound gs
+  roundImages <- shuffle (Array.range 0 5)
+  rounds <- traverse gameToRound (Array.zip gs roundImages)
   let c = unsafePartial $ fromJust $ Array.uncons rounds
   pure  {
     previousRounds: [],
@@ -157,7 +160,13 @@ progressBar s = let entity InPlay = HH.img [HP.src "static/imgs/active.gif"]
                   (entity <<< roundState <$> ( s.previousRounds <> Array.fromFoldable s.currentRound)) <>
                   (const notPlayedEntity <$> s.upcomingRounds)
 
-
+imgUrl :: forall cs a. Round cs a -> String
+imgUrl r = 
+  let prefix = 
+             case roundState r of 
+                InPlay -> "-sill.svg"
+                _ -> "-full.svg"
+  in "static/imgs/" <> show r.roundImage <>  prefix
 
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
 render state =
@@ -174,7 +183,10 @@ render state =
     Just r -> 
         [ 
           progressBar state,
-          r.quizLine, 
+          HH.p_ [
+            HH.img [classname "bigGraphic", HP.src $ imgUrl r]
+          ],
+          HH.p_ [r.quizLine], 
           HH.p_ $ renderButton (roundState r) <$> r.answers,
           HH.p_ $ case roundState r of
                     InPlay -> []
