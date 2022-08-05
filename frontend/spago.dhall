@@ -7,7 +7,8 @@
     "halogen",
     "psci-support",
     "foreign-generic",
-    "random"
+    "random", 
+    "web-url"
    ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

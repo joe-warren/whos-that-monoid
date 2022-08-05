@@ -1,5 +1,6 @@
 body {
     background: #da100e;
+    font-family: 'Noto Sans', sans-serif;
 }
 
 
@@ -23,20 +24,32 @@ body {
     margin: 1em auto;
 }
 
-.quizSection {
-    background-color: white;
+.quizSection, .resultsPage {
     border-radius: 1em;
-    padding: 1em;
+    background-color: white;
+    padding:  1em;
     text-align: center;
+}
+
+.quizSection {
 }
 
 .quizline {
     font-family: 'Courier Prime', monospace;
 }
 
+.tinyquestionmarks img {
+  display: inline-block;
+  width: 1em;
+  transform: translate(0, 0.25em);
+}
+
 .buttons {
    width: max-content;
    margin: 1em auto;
+   display: grid;
+   grid-template-columns: 20em 20em;
+   gap: 1em
 }
 
 .nextQuestion {
@@ -46,7 +59,7 @@ body {
     
 }
 
-button {
+.resultsPage a, button {
     padding: 1em;
     margin: 1em;
     border-radius: 10px;
@@ -90,4 +103,30 @@ button.incorrect {
     border-color: #da100e;
     font-weight: bold;
 	animation: wobble 0.5s ease;
+}
+
+.resultspage {
+    width: fit-content;
+    margin: 1em auto;
+}
+
+.resultsText {
+    margin: 2em;
+    font-size: large;
+}
+
+
+.resultsPage a {
+    color: #da100e;
+    border-color: #da100e;
+    text-decoration: none;
+}
+
+.links {
+    margin: 1em auto;
+    width: fit-content;
+}
+.links img {
+    width: 3em;
+    margin: 1em;
 }

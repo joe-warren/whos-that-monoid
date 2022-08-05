@@ -23,7 +23,8 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
 import Web.HTML.Event.EventTypes (offline)
-
+import Web.URL as URL
+import Web.URL.URLSearchParams as URLParams
 
 data RoundState = Win | Lose | InPlay
 
@@ -48,7 +49,9 @@ type Round cs m = {
   }
 
 type State cs m 
-  = { previousRounds :: Array (Round cs m),
+  = { 
+      pageUrl :: String,
+      previousRounds :: Array (Round cs m),
       currentRound :: Maybe (Round cs m), 
       upcomingRounds :: Array (Round cs m)
     }
@@ -84,7 +87,7 @@ gameToRound (Tuple (GM.Game g) i) = do
   pure { 
     quizLine: HH.span [classname "quizline"] [
       HH.text "ala ", 
-      HH.text " ???? ",
+      HH.span [classname "tinyquestionmarks"] (Array.replicate 5 (HH.img [HP.src "static/imgs/question-mark.svg"])),
       HH.text " foldMap ",
       HH.text "[",
       HH.span_ (Array.intersperse (HH.text ", ") (HH.text <$> g.gameInputs)), 
@@ -96,12 +99,13 @@ gameToRound (Tuple (GM.Game g) i) = do
     roundImage: i
   } 
 
-buildInitialState :: forall cs m. GM.Games -> Effect (State cs m)
-buildInitialState (GM.Games gs) = do 
+buildInitialState :: forall cs m. String -> GM.Games -> Effect (State cs m)
+buildInitialState url (GM.Games gs) = do 
   roundImages <- shuffle (Array.range 0 5)
   rounds <- traverse gameToRound (Array.zip gs roundImages)
   let c = unsafePartial $ fromJust $ Array.uncons rounds
   pure  {
+    pageUrl: url,
     previousRounds: [],
     currentRound: Just c.head,
     upcomingRounds: c.tail
@@ -111,9 +115,9 @@ buildInitialState (GM.Games gs) = do
 data Action
   = Choose GM.MonoidName | AdvanceRound 
 
-component :: forall q i o m. GM.Games -> Effect(H.Component q i o m)
-component gs =do
-  s <- buildInitialState gs
+component :: forall q i o m. String -> GM.Games -> Effect(H.Component q i o m)
+component s gs = do
+  s <- buildInitialState s gs
   pure $ H.mkComponent
     { initialState: \_ -> s
     , render: render 
@@ -150,7 +154,6 @@ score :: forall cs m. State cs m -> Tuple Int Int
 score s = Tuple (count (((==) Win) <<< roundState) s.previousRounds) (length s.previousRounds)
 
 
-
 progressBar :: forall cs m. State cs m -> H.ComponentHTML Action cs m
 progressBar s = let entity InPlay = HH.img [HP.src "static/imgs/active.gif"]
                     entity Win = HH.img [HP.src "static/imgs/success.gif"]
@@ -168,19 +171,38 @@ imgUrl r =
                 _ -> "-full.svg"
   in "static/imgs/" <> show r.roundImage <>  prefix
 
+resultsText :: forall cs m. State cs m -> String
+resultsText state = let Tuple nScore nRounds = score state
+               in show nScore <> "/" <> show nRounds
+
+
+sharingLink :: forall cs m . State cs m -> HH.ComponentHTML Action cs m
+sharingLink s = 
+    let 
+      text = "I scored " <> resultsText s <> " on \"Who's That Monoid\"\n" <> s.pageUrl <> "\nTry it out?\n"
+      plainUrl = URL.unsafeFromAbsolute "https://twitter.com/intent/tweet"
+      params = URLParams.toString <<<
+          URLParams.append "via" "hungryjoewarren" <<<
+          URLParams.append "hashtags" "Haskell" <<<
+          URLParams.append "text" text $
+          URLParams.fromString ""
+      sharingUrl = URL.toString $ URL.setSearch params plainUrl
+    in HH.a [HP.href sharingUrl] [HH.text "Share On Twitter"]
+
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
 render state =
   HH.div [classname "content"] ([
    HH.div [classname "header"] [HH.img [HP.src "static/imgs/small-title.svg"] ]
-  ] <> case state.currentRound of
+  ] <> (case state.currentRound of
     Nothing -> [
-    progressBar state,
-    HH.text "Game Over",
-    let Tuple s nRounds = score state in HH.p_ [
-      HH.text (show s),
-      HH.text "/",
-      HH.text $ show nRounds
-    ]
+        progressBar state,
+        HH.div [classname "resultsPage"] [
+           HH.h1_ [HH.text "Results"],
+          HH.div [classname "resultsText"] [ HH.text (resultsText state) ],
+          HH.p_ [
+            sharingLink state
+          ]
+        ]
     ]
     Just r -> 
         [ 
@@ -195,9 +217,14 @@ render state =
                               [HE.onClick \_ -> AdvanceRound]
                               [ HH.text "Next Question" ]
                         ]
-        ]
-        ]
-        )
+  ]]) <> [
+          HH.div [classname "links"]
+            [
+              HH.a [HP.href "https://github.com/joe-warren/whos-that-monoid/"] [HH.img [HP.src "static/imgs/github.svg"]],
+              HH.a [HP.href "https://twitter.com/hungyjoewarren"] [HH.img [HP.src "static/imgs/twitter.svg"]]
+
+            ]
+        ])
 
   
 
@@ -213,7 +240,8 @@ doAdvance s =
   in {
     previousRounds: (maybe identity (flip Array.snoc) s.currentRound) s.previousRounds,
     currentRound: _.head <$> c,
-    upcomingRounds: maybe [] _.tail c
+    upcomingRounds: maybe [] _.tail c,
+    pageUrl: s.pageUrl
   }
 
 
