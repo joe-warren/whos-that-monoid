@@ -1,6 +1,8 @@
-body {
+body, html {
     background: #da100e;
     font-family: 'Noto Sans', sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 
@@ -10,7 +12,14 @@ body {
 
 .content {
 }
+.intro {
+    text-align: center;
+}
 
+.intro img {
+    margin: 0 auto;
+    margin-bottom: 2em;
+}
 
 .progress {
     background: white;
@@ -27,6 +36,7 @@ body {
 .quizSection, .resultsPage {
     border-radius: 1em;
     background-color: white;
+    margin: 0 1em;
     padding:  1em;
     text-align: center;
 }
@@ -59,7 +69,7 @@ body {
     
 }
 
-.resultsPage a, button {
+.intro a, .resultsPage a, button {
     padding: 1em;
     margin: 1em;
     border-radius: 10px;
@@ -68,9 +78,10 @@ body {
     background-color: #f0f0f8;
     border-color: black;
     width: 20em;
+    text-decoration: none;
 }
 
-button.undetermined {
+.intro a, button.undetermined {
     color: #0f3768;
     border-color: #0f3768;
 }
@@ -119,7 +130,6 @@ button.incorrect {
 .resultsPage a {
     color: #da100e;
     border-color: #da100e;
-    text-decoration: none;
 }
 
 .links {
