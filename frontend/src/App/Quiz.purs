@@ -176,6 +176,10 @@ resultsText state = let Tuple nScore nRounds = score state
                in show nScore <> "/" <> show nRounds
 
 
+questionsRemain :: forall cs m. State cs m -> Boolean
+questionsRemain = not <<< Array.null <<<_.upcomingRounds
+
+
 sharingLink :: forall cs m . State cs m -> HH.ComponentHTML Action cs m
 sharingLink s = 
     let 
@@ -215,7 +219,7 @@ render state =
                       InPlay -> [ ]
                       _ ->  [HH.button
                               [HE.onClick \_ -> AdvanceRound]
-                              [ HH.text "Next Question" ]
+                              [ HH.text $ if questionsRemain state then "Next Question" else "See Results"]
                         ]
   ]]) <> [
           HH.div [classname "links"]
