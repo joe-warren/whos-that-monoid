@@ -82,8 +82,8 @@ gamesArray (Games gs) = gs
 derive instance genericGames :: Generic Games _
 
 request :: String -> Aff (Either String Games)
-request q = do
-    response <- AX.get AXRF.string "static/data/0.json"
+request number = do
+    response <- AX.get AXRF.string $ "static/data/" <> number <> ".json"
     pure $ case response of
             Left err -> Left $ AX.printError err
             Right res -> lmap show <<< runExcept $  genericDecodeJSON noUnwrapOpts $ res.body
