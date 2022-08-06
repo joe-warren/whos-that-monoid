@@ -140,3 +140,26 @@ button.incorrect {
     width: 3em;
     margin: 1em;
 }
+
+.number {
+    color: #da100e
+}
+
+.string {
+    color:#0b9e0c;
+}
+
+.function {
+    color: #0f3768;
+}
+
+.constructor {
+    color: #366eab;
+}
+
+.operator {
+    color: #bf9f1f;
+}
+.bold {
+    font-weight: bold;
+}

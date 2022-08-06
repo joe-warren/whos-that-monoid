@@ -6,8 +6,7 @@ import App.IntroScreen as IntroScreen
 import App.Quiz as Quiz
 import Data.Either (Either(..))
 import Data.Int (floor)
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.String (Pattern(..), stripPrefix)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
@@ -16,8 +15,6 @@ import GameModel (request)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 import Web.HTML (window)
-import Web.HTML.Event.EventTypes (offline)
-import Web.HTML.Location (hash)
 import Web.HTML.Window (location)
 import Web.URL as URL
 import Web.URL.URLSearchParams as URLParams

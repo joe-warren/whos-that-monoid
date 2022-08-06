@@ -17,12 +17,13 @@ import GameModel (MonoidName, Output(..))
 import GameModel as GM
 import Halogen (ClassName)
 import Halogen as H
-import Halogen.HTML (output)
+import Halogen.HTML (a, output)
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafePartial)
 import Web.HTML.Event.EventTypes (offline)
+import Web.HTML.ValidityState (valid)
 import Web.URL as URL
 import Web.URL.URLSearchParams as URLParams
 
@@ -64,20 +65,56 @@ allRounds s =  List.fromFoldable s.previousRounds <>
 shuffle :: ∀ a. Array a -> Effect (Array a)
 shuffle xs = map fst <<< Array.sortWith snd <$> traverse (\x -> Tuple x <$> Random.random) xs
 
-outputHtml :: forall a cs m. GM.Output -> HH.ComponentHTML a cs m
-outputHtml (SimpleOutput s) = HH.span_ [HH.text "==", HH.text s]
-outputHtml (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
-  HH.text "<$>",
-  HH.text "[",
-  HH.span_ (Array.intersperse (HH.text ", ") (HH.text <$> f.complexOutputInputs)), 
-  HH.text "]",
-  HH.text " == ",
-  HH.text "[",
-  HH.span_ (Array.intersperse (HH.text ", ") (HH.text <$> f.complexOutputOutputs)), 
-  HH.text "]"
-]
+code :: forall a cs m. String -> String -> HH.ComponentHTML a cs m
+code clazz content = HH.span [classname clazz] [HH.text content]
+
+num = code "number"
+
+str = code "string"
+
+fun = code "function"
+
+con = code "constructor"
+
+op = code "operator"
+
+bold = HH.span [classname "bold"] <<< pure
+
+outputHtml prefix (SimpleOutput s) = HH.span_ [prefix, space, op "==", space,  bold $ highlight s]
+outputHtml prefix (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
+    (case f.complexOutputApplication of
+      Just app -> HH.span_ [fun app, space, op "(", prefix, op ")"]
+      Nothing -> prefix 
+    ) 
+    ,
+    space, op "<$>", space,
+    bold $ list (highlight <$> f.complexOutputInputs), 
+    HH.br_,
+    op " == ",
+    bold $ list (highlight <$> f.complexOutputOutputs)
+  ]
+
+space = HH.text " "
 
 classname = HP.class_ <<< HH.ClassName
+
+highlight :: forall a cs m. String -> HH.ComponentHTML a cs m
+highlight = HH.text
+
+
+
+list :: forall m cs a. Array (HH.ComponentHTML m cs a)-> HH.ComponentHTML m cs a
+list a = HH.span_ [op "[", HH.span_ $ Array.intersperse (op ", ") a, op "]"]
+
+nonEmptyList :: forall m cs a. Array (HH.ComponentHTML m cs a) -> HH.ComponentHTML m cs a
+nonEmptyList a = case Array.uncons a of 
+  Just v -> HH.span_ $ [op "(", v.head, space, op ":|", space] <> [list v.tail, op ")"]
+  _ -> list a
+
+inputs ::forall cs m. GM.Game -> HH.ComponentHTML Action cs m
+inputs (GM.Game g) = bold $ case g.gameAggregation of
+                    "foldMap1" -> nonEmptyList $ highlight <$> g.gameInputs
+                    _ -> list $ highlight <$> g.gameInputs
 
 gameToRound :: forall cs m. Tuple GM.Game Int -> Effect (Round cs m)
 gameToRound (Tuple (GM.Game g) i) = do
@@ -86,14 +123,12 @@ gameToRound (Tuple (GM.Game g) i) = do
   shuffledAnswers <- shuffle (Array.cons correctAnswer incorrectAnswers)
   pure { 
     quizLine: HH.span [classname "quizline"] [
-      HH.text "ala ", 
-      HH.span [classname "tinyquestionmarks"] (Array.replicate 5 (HH.img [HP.src "static/imgs/question-mark.svg"])),
-      HH.text " foldMap ",
-      HH.text "[",
-      HH.span_ (Array.intersperse (HH.text ", ") (HH.text <$> g.gameInputs)), 
-      HH.text "]",
-      HH.text " ",
-      (outputHtml g.gameOutput)
+      let prefix = HH.span_ [fun "ala ", 
+          HH.span [classname "tinyquestionmarks"] (Array.replicate 5 (HH.img [HP.src "static/imgs/question-mark.svg"])),
+          space, fun g.gameAggregation, space,
+          inputs (GM.Game g)]
+       in 
+      (outputHtml prefix g.gameOutput)
     ], 
     answers: shuffledAnswers,
     roundImage: i
@@ -152,7 +187,6 @@ count f xs = let f' v =  if f v then 1 else 0
 
 score :: forall cs m. State cs m -> Tuple Int Int
 score s = Tuple (count (((==) Win) <<< roundState) s.previousRounds) (length s.previousRounds)
-
 
 progressBar :: forall cs m. State cs m -> H.ComponentHTML Action cs m
 progressBar s = let entity InPlay = HH.img [HP.src "static/imgs/active.gif"]
