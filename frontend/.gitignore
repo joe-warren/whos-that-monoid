@@ -12,3 +12,4 @@ package-lock.json
 
 dist/
 prod/*
+static/data/*.json

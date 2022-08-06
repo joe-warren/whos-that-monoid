@@ -65,8 +65,8 @@ intCompaisonGenerator =
     uniform
       [ comparisonGenerator,
         do
-          (intName, intValue) <- intGenerator
-          let name = "compare `on` (`mod` " <> intName <> ")"
+          intValue <- getRandomR (2, 5)
+          let name = "compare `on` (`mod` " <> (T.pack $ show intValue) <> ")"
           return (name, compare `on` (`mod` intValue))
       ]
 
@@ -93,8 +93,8 @@ intEquivalenceGenerator =
     uniform
       [ equivalenceGenerator,
         do
-          (intName, intValue) <- intGenerator
-          let name = "(==) `on` (`mod` " <> intName <> ")"
+          intValue <- getRandomR (2, 5)
+          let name = "(==) `on` (`mod` " <> (T.pack . show $ intValue) <> ")"
           return (name, (==) `on` (`mod` intValue))
       ]
 
