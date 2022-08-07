@@ -7,8 +7,10 @@ body, html {
 
 
 .header img {
-    height: 50px;
+    height: 60px;
+    margin: 5px
 }
+
 
 .content {
 }
@@ -27,6 +29,10 @@ body, html {
     width: max-content;
     margin: 1em auto;
 }
+.progress img {
+    vertical-align: middle;
+}
+
 
 .bigGraphic {
     display: block;
