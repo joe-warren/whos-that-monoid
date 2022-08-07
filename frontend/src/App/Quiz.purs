@@ -52,6 +52,7 @@ type Round cs m = {
 type State cs m 
   = { 
       pageUrl :: String,
+      nextUrl :: String, 
       previousRounds :: Array (Round cs m),
       currentRound :: Maybe (Round cs m), 
       upcomingRounds :: Array (Round cs m)
@@ -133,13 +134,14 @@ gameToRound (Tuple (GM.Game g) i) = do
     roundImage: i
   } 
 
-buildInitialState :: forall cs m. String -> GM.Games -> Effect (State cs m)
-buildInitialState url (GM.Games gs) = do 
+buildInitialState :: forall cs m. String -> String -> GM.Games -> Effect (State cs m)
+buildInitialState url nextUrl (GM.Games gs) = do 
   roundImages <- shuffle (Array.range 0 5)
   rounds <- traverse gameToRound (Array.zip gs roundImages)
   let c = unsafePartial $ fromJust $ Array.uncons rounds
   pure  {
     pageUrl: url,
+    nextUrl: nextUrl,
     previousRounds: [],
     currentRound: Just c.head,
     upcomingRounds: c.tail
@@ -149,9 +151,9 @@ buildInitialState url (GM.Games gs) = do
 data Action
   = Choose GM.MonoidName | AdvanceRound 
 
-component :: forall q i o m. String -> GM.Games -> Effect(H.Component q i o m)
-component s gs = do
-  s <- buildInitialState s gs
+component :: forall q i o m. String -> String -> GM.Games -> Effect(H.Component q i o m)
+component s n gs = do
+  s <- buildInitialState s n gs
   pure $ H.mkComponent
     { initialState: \_ -> s
     , render: render 
@@ -220,11 +222,14 @@ sharingLink s =
       plainUrl = URL.unsafeFromAbsolute "https://twitter.com/intent/tweet"
       params = URLParams.toString <<<
           URLParams.append "via" "hungryjoewarren" <<<
-          URLParams.append "hashtags" "Haskell" <<<
+          URLParams.append "hashtags" "Haskell,WhosThatMonoid" <<<
           URLParams.append "text" text $
           URLParams.fromString ""
       sharingUrl = URL.toString $ URL.setSearch params plainUrl
-    in HH.a [HP.href sharingUrl] [HH.text "Share On Twitter"]
+    in HH.a [HP.href sharingUrl] [HH.text "Share On Twitter?"]
+
+newGameLink :: forall cs m . State cs m -> HH.ComponentHTML Action cs m
+newGameLink s = HH.a [HP.href s.nextUrl] [HH.text "Play Again?"]
 
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
 render state =
@@ -237,6 +242,7 @@ render state =
            HH.h1_ [HH.text "Results"],
           HH.div [classname "resultsText"] [ HH.text (resultsText state) ],
           HH.p_ [
+            newGameLink state,
             sharingLink state
           ]
         ]
@@ -274,11 +280,10 @@ doChoose name s =
 doAdvance :: forall cs m.  State cs m -> State cs m
 doAdvance s = 
   let c = Array.uncons s.upcomingRounds
-  in {
-    previousRounds: (maybe identity (flip Array.snoc) s.currentRound) s.previousRounds,
-    currentRound: _.head <$> c,
-    upcomingRounds: maybe [] _.tail c,
-    pageUrl: s.pageUrl
+  in s {
+    previousRounds = (maybe identity (flip Array.snoc) s.currentRound) s.previousRounds,
+    currentRound = _.head <$> c,
+    upcomingRounds = maybe [] _.tail c
   }
 
 

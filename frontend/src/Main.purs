@@ -6,7 +6,7 @@ import App.IntroScreen as IntroScreen
 import App.Quiz as Quiz
 import Data.Either (Either(..))
 import Data.Int (floor)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
@@ -25,6 +25,11 @@ foreign import printLocation :: forall a. a -> String
 getQuizId :: String -> Maybe String
 getQuizId u = URLParams.get "game" =<< URL.searchParams <$> URL.fromAbsolute u
 
+nextPageUrl :: String -> String -> String
+nextPageUrl u gid = fromMaybe u $ do
+    url <- URL.fromAbsolute u
+    let params = URLParams.set "game" gid $ URL.searchParams url
+    pure $ URL.toString $ URL.setSearch (URLParams.toString params) url
 
 main :: Effect Unit
 main = do
@@ -43,5 +48,6 @@ main = do
             Left text -> liftEffect $ log text
             Right res -> do
                       body <- HA.awaitBody
-                      component <- liftEffect $ Quiz.component (printLocation pageUrl) res
+                      let next = nextPageUrl pageUrl randomGameId
+                      component <- liftEffect $ Quiz.component (printLocation pageUrl) next res
                       void $  runUI component unit body
