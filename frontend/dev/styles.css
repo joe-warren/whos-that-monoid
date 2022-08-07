@@ -99,6 +99,7 @@ body, html {
 
 .resultsPage img {
     width: 3em;
+    padding: 1em
 }
 
 .intro a, button.undetermined {
@@ -142,8 +143,8 @@ button.incorrect {
 }
 
 .resultsText {
-    margin: 2em;
-    font-size: large;
+    margin: 1em;
+    font-size: 16pt;
 }
 
 

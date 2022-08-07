@@ -244,7 +244,7 @@ render state =
         HH.div [classname "resultsPage"] [
           HH.h1_ [HH.text "Results"],
           HH.div [classname "resultsText"] [ HH.text (resultsText state) ],
-          HH.p_ <<< pure $ HH.img [HP.src "static/imgs/rosette.svg"] , 
+          HH.p_ <<< Array.replicate (fst <<< score $ state) $ HH.img [HP.src "static/imgs/rosette.svg"] , 
           HH.p_ [
             newGameLink state,
             sharingLink state
