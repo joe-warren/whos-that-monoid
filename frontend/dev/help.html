@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Who's That Monoid : Help</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Noto+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+    <div class="helpContent">
+        <h1><img src="small-title.svg" /></h1>
+        <p>"Who's That Monoid" is a game about picking the right <span class="code">Monoid</span> or <span
+                class="code">Semigroup</span> to complete a function.</p>
+        <p>While the functions look complicated they all take the same form.</p>
+        <p>When combined with the correct Monoid, the <span class="code input">inputs</span> (in green), should equal
+            the <span class="code output">output</span> (in red).</p>
+        <p>In some cases, the <span class="code input">input</span> is a function, when this happens, the <span
+                class="code output">output</span> shown is the result of applying the agregation to a list of <span
+                class="code applied">arguments</span> (in blue).</p>
+
+        <p>When values specified are Strings, they can be assumed to be plain strings (not <span
+                class="code">Text</span>),
+            also numbers will always have type <span class="code">Integer</span>.</p>
+        <p>There should always be one, and only one correct answer. If you think you've found a case where more than one
+            listed answer is correct, please let me know.</p>
+
+        <h2>Functions</h2>
+        <table>
+            <tr>
+                <td class=head><a class="code"
+                        href="https://hackage.haskell.org/package/lens-5.1.1/docs/Control-Lens-Combinators.html#v:ala">ala</a>
+                </td>
+                <td>Taken from <a href="http://strictlypositive.org/">Conor McBride's</a> work.<br />
+                    Conor McBride explains <span class="code">ala</span> at the 23:30 mark of <a
+                        href="https://www.youtube.com/watch?v=3U3lV5VPmOU&t=1410s">this video</a>.<br />
+                    Here, we're using <span class="code">ala</span> to aggregate using a <span
+                        class="code">Monoid</span>, while only specifying the constructor.
+                </td>
+            </tr>
+
+            <tr>
+                <td class=head><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Prelude.html#v:foldMap">foldMap</a>
+                </td>
+                <td>
+                    Typically maps each element of a structure onto a <span class="code">Monoid</span>, and then
+                    combines the results using that <span class="code">Monoid</span><br />
+                    When combined with <span class="code">ala</span>, <span class="code">foldMap</span> produces a
+                    function that
+                    aggregates a structure directly, using the specified <span class="code">Monoid</span>.
+                </td>
+            </tr>
+            <tr>
+                <td class=head><a class="code"
+                        href="https://hackage.haskell.org/package/semigroupoids-5.3.7/docs/Data-Semigroup-Foldable.html#v:foldMap1">foldMap1</a>
+                </td>
+                <td>
+                    Like <span class="code" />foldMap</span>, but restricted to non-empty structures. <br />
+                    This lets us restrict the <span class="code">Monoid</span> constraint down to <span
+                        class="code">Semigroup</span>.
+                </td>
+            </tr>
+        </table>
+
+        <h2>The Monoids (and Semigroups)</h2>
+
+        <table>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:All">All</a>
+                </td>
+                <td><span class="code">Monoid</span> for <span class="code">Boolean</span>, aggregates using <span
+                        class="code">(&amp;&amp;)</span> (and).</td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Alt">Alt</a>
+                </td>
+                <td>
+                    <span class="code">Monoid</span> for values in the <a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Control-Applicative.html#t:Alternative">Alternative</a>
+                    typeclass.
+                    Aggregates using the <a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Control-Applicative.html#v:-60--124--62-">(&lt;|&gt;)</a>
+                    operator.
+                </td>
+            </tr>
+            <tr>
+                <td class=" head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Any">Any
+                    </a>
+                </td>
+                <td>Monoid for <span class="code">Boolean</span>, aggregates using <span class="code">(||)</span> (or).
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Ap">Ap</a>
+                </td>
+                <td>
+                    <span class="code">Monoid</span> for Monoidal values in the <a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Control-Applicative.html#t:Applicative">Applicative</a>
+                    typeclass.<br />
+                    Aggregates using the <span class="code">Monoid</span> instance on the underlying value wrapped in an
+                    applicative functor.
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Functor-Contravariant.html#t:Comparison">Comparison</a>
+                </td>
+                <td>
+                    Newtype on functions <span class="code">a -> a -> Ordering</span>.<br />
+                    <span class="code">Monoid</span> instance is the same as the one for the underlying value.
+
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:First">Data.Monoid.First</a>
+                </td>
+                <td>
+                    Newtype on <span class="code">Maybe a</span>.<br />
+                    Returns the leftmost non-<span class="code">Nothing</span> value.
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Last">Data.Monoid.Last</a>
+                </td>
+                <td>
+                    Newtype on <span class="code">Maybe a</span>.<br />
+                    Returns the rightmost non-<span class="code">Nothing</span> value.
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Semigroup.html#t:First">Data.Semigroup.First</a>
+
+                </td>
+                <td>Returns the leftmost value</td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Semigroup.html#t:Last">Data.Semigroup.Last</a>
+                </td>
+                <td>Returns the rightmost value</td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Dual">Dual</a>
+                </td>
+                <td>
+                    The dual of the underlying <span class="code">Monoid</span>, returns the result of combining the
+                    values in the reverse order.
+
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Endo">Endo</a>
+                </td>
+                <td>
+                    Newtype over functions <span class="code">a -> a</span>.
+                    Returns the result of composing all of the functions together.
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Functor-Contravariant.html#t:Equivalence">Equivalence</a>
+                </td>
+                <td>
+                    Newtype on functions <span class="code">a -> a -> Boolean</span>.<br />
+                    <span class="code">Monoid</span> instance uses <span class="code">(&amp;&amp;)</span> on the results
+                    (similar to <span class="code">All</span>).
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Functor-Identity.html">Identity</a>
+                </td>
+                <td>
+                    The <span class="code">Identity</span> functor. <br />
+                    Has the same <span class="code">Monoid</span> behaviour as the wrapped type.
+
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Semigroup.html#t:Max">Max</a>
+                </td>
+                <td>Returns the largest of the values (using <span class="code">Ord</span>).</td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Semigroup.html#t:Min">Min</a>
+                </td>
+                <td>Returns the smallest of the values (using <span class="code">Ord</span>).</td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Functor-Contravariant.html#t:Predicate">Predicate</a>
+                </td>
+                <td>
+                    Newtype on functions <span class="code">a -> Boolean</span>.<br />
+                    <span class="code">Monoid</span> instance uses <span class="code">(&amp;&amp;)</span> on the results
+                    (similar to <span class="code">All</span>).
+                </td>
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Functor-Product.html">Product</a>
+                </td>
+                <td>
+                    Combines values using multiplication.
+                </td>
+
+            </tr>
+            <tr>
+                <td class="head"><a class="code"
+                        href="https://hackage.haskell.org/package/base-4.16.3.0/docs/Data-Monoid.html#t:Sum">Sum</a>
+                </td>
+                <td>
+                    Combines values using addition.
+                </td>
+            </tr>
+        </table>
+        <h2>Running the code</h2>
+        Assuming you have <a href="https://www.google.com/search?client=firefox-b-d&q=haskell-stack">Stack</a>
+        installed, you should be able to run the code in a repl by running:<br /><br />
+        <div class="code">
+            stack ghci --package lens --package containers --package semigroupoids
+        </div><br />
+
+        and then pasting in:<br /><br />
+
+        <div class="code">
+            import Control.Lens (Identity (..), ala)<br />
+            import Data.Functor.Contravariant (Comparison (Comparison), Equivalence (Equivalence), Predicate
+            (Predicate))<br />
+            import qualified Data.Monoid<br />
+            import Data.Monoid (All(..), Any (..), Ap (..), Alt(..), Dual(..), Endo(..), Product(..), Sum(..))<br />
+            import qualified Data.Semigroup<br />
+            import Data.Semigroup (Max (..), Min (..))<br />
+            import Data.Semigroup.Foldable (Foldable1 (foldMap1))<br />
+            import Data.Char (isNumber, toLower, toUpper)<br />
+            import Data.Function ( on )<br />
+            import Data.Maybe (listToMaybe)<br />
+
+        </div><br />
+        Some type annotations may be required, and you'll need to fill in the ???s.
+    </div>
+</body>
+
+</html>

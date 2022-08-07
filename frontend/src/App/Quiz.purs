@@ -108,7 +108,7 @@ list a = HH.span_ [op "[", HH.span_ $ Array.intersperse (op ", ") a, op "]"]
 
 nonEmptyList :: forall m cs a. Array (HH.ComponentHTML m cs a) -> HH.ComponentHTML m cs a
 nonEmptyList a = case Array.uncons a of 
-  Just v -> HH.span_ $ [op "(", v.head, space, op ":|", space] <> [list v.tail, op ")"]
+  Just v -> HH.span_ $ [op "((",  v.head, op ")", space, op ":|", space] <> [list v.tail, op ")"]
   _ -> list a
 
 inputs ::forall cs m. GM.Game -> HH.ComponentHTML Action cs m
@@ -234,7 +234,10 @@ newGameLink s = HH.a [HP.href s.nextUrl] [HH.text "Play Again?"]
 render :: forall cs m.  State cs m -> H.ComponentHTML Action cs m
 render state =
   HH.div [classname "content"] ([
-   HH.div [classname "header"] [HH.img [HP.src "static/imgs/small-title.svg"] ]
+   HH.div [classname "header"] [
+     HH.img [HP.src "static/imgs/small-title.svg"] , 
+     HH.a [HP.href "help.html", HP.target "_blank"] [HH.text "Help"]
+     ]
   ] <> (case state.currentRound of
     Nothing -> [
         progressBar state,

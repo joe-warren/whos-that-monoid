@@ -11,7 +11,7 @@ import Data.Bifunctor (bimap)
 import qualified Data.Bifunctor
 import Data.Char (isNumber, toLower, toUpper)
 import Data.Foldable (toList)
-import Data.Function
+import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
 import Data.List.NonEmpty (NonEmpty)
@@ -56,7 +56,7 @@ comparisonGenerator =
   uniform
     [ ("compare", compare),
       ("flip compare", flip compare),
-      ("const (const EQ))", const (const EQ))
+      ("const (const EQ)", const (const EQ))
     ]
 
 intCompaisonGenerator :: (MonadRandom m) => m (Text, Integer -> Integer -> Ordering)
