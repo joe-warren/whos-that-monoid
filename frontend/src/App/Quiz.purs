@@ -242,8 +242,9 @@ render state =
     Nothing -> [
         progressBar state,
         HH.div [classname "resultsPage"] [
-           HH.h1_ [HH.text "Results"],
+          HH.h1_ [HH.text "Results"],
           HH.div [classname "resultsText"] [ HH.text (resultsText state) ],
+          HH.p_ <<< pure $ HH.img [HP.src "static/imgs/rosette.svg"] , 
           HH.p_ [
             newGameLink state,
             sharingLink state

@@ -97,6 +97,10 @@ body, html {
     text-decoration: none;
 }
 
+.resultsPage img {
+    width: 3em;
+}
+
 .intro a, button.undetermined {
     color: #0f3768;
     border-color: #0f3768;
