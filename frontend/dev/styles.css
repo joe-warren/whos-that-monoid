@@ -141,12 +141,16 @@ button.incorrect {
     margin: 1em;
 }
 
-.number {
+.output, .number {
     color: #da100e
 }
 
-.string {
+.input, .string {
     color:#0b9e0c;
+}
+
+.applied {
+    color: #65c4e0;
 }
 
 .function {

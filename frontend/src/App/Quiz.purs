@@ -68,19 +68,20 @@ shuffle xs = map fst <<< Array.sortWith snd <$> traverse (\x -> Tuple x <$> Rand
 code :: forall a cs m. String -> String -> HH.ComponentHTML a cs m
 code clazz content = HH.span [classname clazz] [HH.text content]
 
-num = code "number"
-
-str = code "string"
 
 fun = code "function"
 
-con = code "constructor"
-
 op = code "operator"
+
+inp = code "input"
+
+out = code "output"
+
+app = code "applied"
 
 bold = HH.span [classname "bold"] <<< pure
 
-outputHtml prefix (SimpleOutput s) = HH.span_ [prefix, space, op "==", space,  bold $ highlight s]
+outputHtml prefix (SimpleOutput s) = HH.span_ [prefix, space, op "==", space,  bold $ out s]
 outputHtml prefix (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
     (case f.complexOutputApplication of
       Just app -> HH.span_ [fun app, space, op "(", prefix, op ")"]
@@ -88,10 +89,10 @@ outputHtml prefix (ComplexOutput (GM.ComplexOutputFields f) ) = HH.span_ [
     ) 
     ,
     space, op "<$>", space,
-    bold $ list (highlight <$> f.complexOutputInputs), 
+    bold $ list (app <$> f.complexOutputInputs), 
     HH.br_,
     op " == ",
-    bold $ list (highlight <$> f.complexOutputOutputs)
+    bold $ list (out <$> f.complexOutputOutputs)
   ]
 
 space = HH.text " "
@@ -100,8 +101,6 @@ classname = HP.class_ <<< HH.ClassName
 
 highlight :: forall a cs m. String -> HH.ComponentHTML a cs m
 highlight = HH.text
-
-
 
 list :: forall m cs a. Array (HH.ComponentHTML m cs a)-> HH.ComponentHTML m cs a
 list a = HH.span_ [op "[", HH.span_ $ Array.intersperse (op ", ") a, op "]"]
@@ -113,8 +112,8 @@ nonEmptyList a = case Array.uncons a of
 
 inputs ::forall cs m. GM.Game -> HH.ComponentHTML Action cs m
 inputs (GM.Game g) = bold $ case g.gameAggregation of
-                    "foldMap1" -> nonEmptyList $ highlight <$> g.gameInputs
-                    _ -> list $ highlight <$> g.gameInputs
+                    "foldMap1" -> nonEmptyList $ inp <$> g.gameInputs
+                    _ -> list $ inp <$> g.gameInputs
 
 gameToRound :: forall cs m. Tuple GM.Game Int -> Effect (Round cs m)
 gameToRound (Tuple (GM.Game g) i) = do
