@@ -1,4 +1,44 @@
-module App.Quiz where
+module App.Quiz
+  ( Action(..)
+  , Answer
+  , Round
+  , RoundState(..)
+  , State
+  , allRounds
+  , app
+  , bold
+  , buildInitialState
+  , classname
+  , code
+  , component
+  , count
+  , doAdvance
+  , doChoose
+  , fun
+  , gameToRound
+  , handleAction
+  , highlight
+  , imgUrl
+  , inp
+  , inputs
+  , list
+  , newGameLink
+  , nonEmptyList
+  , op
+  , out
+  , outputHtml
+  , progressBar
+  , questionsRemain
+  , render
+  , renderButton
+  , resultsText
+  , roundState
+  , score
+  , sharingLink
+  , shuffle
+  , space
+  )
+  where
 
 import Prelude
 
@@ -10,6 +50,8 @@ import Data.List as List
 import Data.Maybe (Maybe(..), fromJust, maybe)
 import Data.Traversable (class Traversable, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
+import Data.String.Common (replaceAll)
+import Data.String.Pattern (Pattern (..), Replacement (..))
 import Effect (Effect)
 import Effect.Random as Random
 import Foreign.NullOrUndefined (undefined)
@@ -218,15 +260,17 @@ questionsRemain = not <<< Array.null <<<_.upcomingRounds
 sharingLink :: forall cs m . State cs m -> HH.ComponentHTML Action cs m
 sharingLink s = 
     let 
-      text = "I scored " <> resultsText s <> " on \"Who's That Monoid\"\n" <> s.pageUrl <> "\nTry it out?\n"
-      plainUrl = URL.unsafeFromAbsolute "https://twitter.com/intent/tweet"
-      params = URLParams.toString <<<
-          URLParams.append "via" "hungryjoewarren" <<<
-          URLParams.append "hashtags" "Haskell,WhosThatMonoid" <<<
+      text = "I scored " <> resultsText s <> " on \"Who's That Monoid\"\n" <> s.pageUrl <> "\nTry it out?\n" 
+        <> "via @hungryjoe@functional.cafe\n"
+        <> "#Haskell #WhosThatMonoid"
+      plainUrl = URL.unsafeFromAbsolute "https://toot.kytta.dev/"
+      -- toot.kytta.dev doesn't support + in URL parameters
+      expandify = replaceAll (Pattern "+") (Replacement "%20")
+      params = expandify <<< URLParams.toString <<<
           URLParams.append "text" text $
           URLParams.fromString ""
       sharingUrl = URL.toString $ URL.setSearch params plainUrl
-    in HH.a [HP.href sharingUrl] [HH.text "Share On Twitter?"]
+    in HH.a [HP.href sharingUrl] [HH.text "Toot On Mastodon?"]
 
 newGameLink :: forall cs m . State cs m -> HH.ComponentHTML Action cs m
 newGameLink s = HH.a [HP.href s.nextUrl] [HH.text "Play Again?"]
@@ -268,8 +312,7 @@ render state =
           HH.div [classname "links"]
             [
               HH.a [HP.href "https://github.com/joe-warren/whos-that-monoid/"] [HH.img [HP.src "static/imgs/github.svg"]],
-              HH.a [HP.href "https://twitter.com/hungyjoewarren"] [HH.img [HP.src "static/imgs/twitter.svg"]]
-
+              HH.a [HP.href "https://@functional.cafe/@hungryjoe"] [HH.img [HP.src "static/imgs/mastodon.svg"]]
             ]
         ])
 
